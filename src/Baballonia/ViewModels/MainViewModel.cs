@@ -29,6 +29,7 @@ public partial class MainViewModel : ViewModelBase
         new(typeof(HomePageViewModel), "HomeRegular", "Home"),
         new(typeof(CalibrationViewModel), "EditRegular", "Calibration"),
         new(typeof(FirmwareViewModel), "DeveloperBoardRegular", "Firmware"),
+        new(typeof(VrcViewModel), "CommentRegular", "VRChat"),
         new(typeof(OutputPageViewModel), "TextFirstLineRegular", "Output"),
         new(typeof(AppSettingsViewModel), "SettingsRegular", "Settings"),
     ];

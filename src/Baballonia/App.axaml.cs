@@ -113,6 +113,8 @@ public class App : Application
                 {
                     services.AddSingleton<ICommandSenderFactory, CommandSenderFactory>();
                     services.AddSingleton<ICommandSender, SerialCommandSender>();
+                    services.AddTransient<VrcViewModel>();
+                    services.AddTransient<VrcView>();
                     services.AddTransient<FirmwareViewModel>();
                     services.AddTransient<FirmwareView>();
                     services.AddTransient<OnboardingViewModel>();

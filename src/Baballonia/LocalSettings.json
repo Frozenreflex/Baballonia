@@ -1,4 +1,6 @@
 {
+  "VRC_UseNativeTracking": false,
+  "VRC_SelectedModuleMode": "Face",
   "OSCInPort": 8889,
   "OSCOutPort": 8888,
   "OSCAddress": "127.0.0.1",

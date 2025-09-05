@@ -2,51 +2,34 @@
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
+using Avalonia.Controls;
 using Baballonia.Contracts;
 using Baballonia.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace Baballonia.ViewModels.SplitViewPane;
 
 public partial class VrcViewModel : ViewModelBase
 {
-    private static readonly string BaballoniaModulePath;
-
-    static VrcViewModel()
-    {
-        var moduleFiles = Directory.EnumerateFiles(Utils.CustomLibsDirectory, "*.json");
-        foreach (var moduleFile in moduleFiles)
-        {
-            var contents = File.ReadAllText(moduleFile);
-            var possibleBabbleConfig = JsonSerializer.Deserialize<ModuleConfig>(contents);
-            if (possibleBabbleConfig != null)
-            {
-                BaballoniaModulePath = moduleFile;
-            }
-        }
-    }
+    public ILocalSettingsService LocalSettingsService { get; }
 
     [ObservableProperty]
     [property: SavedSetting("VRC_UseNativeTracking", false)]
     private bool _useNativeVrcEyeTracking;
 
     [ObservableProperty]
-    [property: SavedSetting("VRC_SelectedModuleMode", "Both")]
+    [property: SavedSetting("VRC_SelectedModuleMode", "Face")]
     private string? _selectedModuleMode;
 
-    partial void OnSelectedModuleModeChanged(string? oldValue, string? newValue)
+    public VrcViewModel()
     {
-        if (string.IsNullOrEmpty(BaballoniaModulePath)) return;
+        LocalSettingsService = Ioc.Default.GetRequiredService<ILocalSettingsService>();
+        LocalSettingsService.Load(this);
 
-        var oldConfig = JsonSerializer.Deserialize<ModuleConfig>(File.ReadAllText(BaballoniaModulePath));
-        var newConfig = newValue switch
+        PropertyChanged += (_, _) =>
         {
-            "Both" => new ModuleConfig(oldConfig!.Host, oldConfig.Port, true, true),
-            "Eyes" => new ModuleConfig(oldConfig!.Host, oldConfig.Port, true, false),
-            "Face" => new ModuleConfig(oldConfig!.Host, oldConfig.Port, false, true),
-            _ => throw new InvalidOperationException()
+            LocalSettingsService.Save(this);
         };
-
-        File.WriteAllText(BaballoniaModulePath, JsonSerializer.Serialize(newConfig));
     }
 }

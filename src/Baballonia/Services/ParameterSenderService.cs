@@ -20,6 +20,7 @@ public class ParameterSenderService : BackgroundService
     private readonly ILogger<ParameterSenderService> logger;
 
     private string prefix = "";
+    // private bool sendNativeVrcEyeTracking;
     private readonly Queue<OscMessage> _sendQueue = new();
 
     // Expression parameter names
@@ -108,6 +109,7 @@ public class ParameterSenderService : BackgroundService
             try
             {
                 prefix = await localSettingsService.ReadSettingAsync<string>("AppSettings_OSCPrefix");
+                // sendNativeVrcEyeTracking = await localSettingsService.ReadSettingAsync<bool>("VRC_UseNativeTracking");
                 await SendAndClearQueue(cancellationToken);
                 await Task.Delay(10, cancellationToken);
             }
@@ -121,12 +123,12 @@ public class ParameterSenderService : BackgroundService
     private void ExpressionUpdateHandler(ProcessingLoopService.Expressions expressions)
     {
         if (expressions.EyeExpression != null)
-            ProcessEyeExpressionData(expressions.EyeExpression, prefix);
+            ProcessEyeExpressionData(expressions.EyeExpression);
         if (expressions.FaceExpression != null)
-            ProcessFaceExpressionData(expressions.FaceExpression, prefix);
+            ProcessFaceExpressionData(expressions.FaceExpression);
     }
 
-    private void ProcessEyeExpressionData(float[] expressions, string prefix = "")
+    private void ProcessEyeExpressionData(float[] expressions)
     {
         if (expressions is null) return;
         if (expressions.Length == 0) return;
@@ -141,9 +143,11 @@ public class ParameterSenderService : BackgroundService
                 weight.Remap(settings.Lower, settings.Upper, settings.Min, settings.Max));
             _sendQueue.Enqueue(msg);
         }
+
+        // if (!sendNativeVrcEyeTracking) return;
     }
 
-    private void ProcessFaceExpressionData(float[] expressions, string prefix = "")
+    private void ProcessFaceExpressionData(float[] expressions)
     {
         if (expressions == null) return;
         if (expressions.Length == 0) return;

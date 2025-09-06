@@ -20,7 +20,7 @@ public class ParameterSenderService : BackgroundService
     private readonly ILogger<ParameterSenderService> logger;
 
     private string prefix = "";
-    // private bool sendNativeVrcEyeTracking;
+    private bool sendNativeVrcEyeTracking;
     private readonly Queue<OscMessage> _sendQueue = new();
 
     // Expression parameter names
@@ -109,7 +109,7 @@ public class ParameterSenderService : BackgroundService
             try
             {
                 prefix = await localSettingsService.ReadSettingAsync<string>("AppSettings_OSCPrefix");
-                // sendNativeVrcEyeTracking = await localSettingsService.ReadSettingAsync<bool>("VRC_UseNativeTracking");
+                sendNativeVrcEyeTracking = await localSettingsService.ReadSettingAsync<bool>("VRC_UseNativeTracking");
                 await SendAndClearQueue(cancellationToken);
                 await Task.Delay(10, cancellationToken);
             }
@@ -144,7 +144,21 @@ public class ParameterSenderService : BackgroundService
             _sendQueue.Enqueue(msg);
         }
 
-        // if (!sendNativeVrcEyeTracking) return;
+        if (!sendNativeVrcEyeTracking || expressions.Length != 6) return;
+
+        var leftEyeX = expressions[0];
+        var leftEyeY = expressions[1];
+        var leftBlink = expressions[2];
+
+        var rightEyeX = expressions[3];
+        var rightEyeY = expressions[4];
+        var rightBlink = expressions[5];
+
+        var leftRightPitchYawMessage = new OscMessage("/tracking/eye/LeftRightPitchYaw", -leftEyeY*45, leftEyeX*45, -rightEyeY*45, rightEyeX*45);
+        _sendQueue.Enqueue(leftRightPitchYawMessage);
+
+        var blinkMessage = new OscMessage("/tracking/eye/EyesClosedAmount", (leftBlink + rightBlink) * 0.5f);
+        _sendQueue.Enqueue(blinkMessage);
     }
 
     private void ProcessFaceExpressionData(float[] expressions)

@@ -68,6 +68,8 @@ public partial class AppSettingsViewModel : ViewModelBase
     [ObservableProperty]
     [property: SavedSetting("AppSettings_StabilizeEyes", true)]
     private bool _stabilizeEyes;
+    [property: SavedSetting("AppSettings_AdvancedOptions", false)]
+    private bool _advancedOptions;
 
     public List<string> LowestLogLevel { get; } =
     [

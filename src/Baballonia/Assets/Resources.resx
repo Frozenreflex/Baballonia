@@ -744,7 +744,6 @@
   <data name="Settings_SteamVR_Auto_Start_Description" xml:space="preserve">
     <value>Should the app launch with SteamVR? (Change requires a SteamVR restart.)</value>
   </data>
-</root>
   <data name="Settings_Advanced_Header" xml:space="preserve">
       <value>Enable advanced settings</value>
   </data>
